@@ -1,60 +1,60 @@
 package com.example.campusequipmentrentalapp.ui.detail
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import com.example.campusequipmentrentalapp.R
+import com.example.campusequipmentrentalapp.data.EquipmentRepository
+import com.example.campusequipmentrentalapp.databinding.FragmentEquipmentDetailBinding
+import com.example.campusequipmentrentalapp.model.RentalStatus
+import com.example.campusequipmentrentalapp.util.NavKeys
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
+class EquipmentDetailFragment : Fragment(R.layout.fragment_equipment_detail) {
 
-/**
- * A simple [Fragment] subclass.
- * Use the [EquipmentDetailFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
-class EquipmentDetailFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
+    private var _binding: FragmentEquipmentDetailBinding? = null
+    private val binding: FragmentEquipmentDetailBinding
+        get() = _binding!!
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        _binding = FragmentEquipmentDetailBinding.bind(view)
+
+        val equipmentId = arguments?.getInt(NavKeys.EQUIPMENT_ID) ?: -1
+        val equipment = EquipmentRepository.findById(equipmentId)
+
+        if (equipment != null) {
+            binding.tvDetailIcon.text = equipment.icon
+            binding.tvDetailName.text = equipment.name
+            binding.tvDetailCategory.text = equipment.category
+            binding.tvDetailDescription.text = equipment.description
+            binding.tvDetailLocation.text = "위치: ${equipment.location}"
+            binding.tvDetailMaxDays.text = "최대 대여 가능 일수: ${equipment.maxRentalDays}일"
+
+            binding.tvDetailStatus.apply {
+                text = equipment.status.label
+                setBackgroundResource(
+                    if (equipment.status == RentalStatus.AVAILABLE) R.drawable.bg_status_available
+                    else R.drawable.bg_status_unavailable
+                )
+            }
+
+            binding.btnRentEquipment.isEnabled = equipment.status == RentalStatus.AVAILABLE
+            binding.btnRentEquipment.setOnClickListener {
+                val bundle = Bundle().apply {
+                    putInt(NavKeys.EQUIPMENT_ID, equipment.id)
+                }
+                findNavController().navigate(R.id.action_equipmentDetailFragment_to_rentalFragment, bundle)
+            }
+        }
+
+        binding.btnBackDetail.setOnClickListener {
+            findNavController().popBackStack()
         }
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_equipment_detail, container, false)
-    }
-
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment EquipmentDetailFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            EquipmentDetailFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
-            }
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

@@ -6,7 +6,7 @@ import com.example.campusequipmentrentalapp.model.RentalStatus
 //데이터베이스 대신 사용할 샘플 데이터 레퍼지터리(보관)
 object EquipmentRepository {
 
-    val equipmentList :List<Equipment> = listOf(
+    val equipmentList: List<Equipment> = listOf(
         Equipment(
             id = 1,
             name = "노트북",
@@ -87,17 +87,7 @@ object EquipmentRepository {
             location = "학과 사무실",
             description = "소규모 행사와 프로젝트 시연에 사용할 수 있는 Bluetooth 스피커입니다."
         )
-
-
-
     )
-    fun findById(id:Int) : Equipment ?= equipmentList.find{ equipment -> equipment.id == id}
 
-
+    fun findById(id: Int): Equipment? = equipmentList.find { it.id == id }
 }
-
-
-
-
-
-
